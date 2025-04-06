@@ -1,12 +1,24 @@
-//:Main class for coding overall behavior and interactions between
-//coders in the group.
+//: Load sound files into buffers, creat a sound file view
+// and a menu to select a file and display it.
 
-Tsr {
-	var sections, coders, behaviors;
-	var audioFileDir, audioBuffers;
-	sections { ^sections ?? { sections = () } }
-	coders { ^coders ?? { coders = () } }
-	behaviors { ^behaviors ?? { behaviors = () } }
+SoundFiles {
+	classvar default;
+	var audioFileDir, audioBuffers, window;
+
+	*autoStart {
+		ServerBoot add: {
+			default = this.new;
+			default.audioBuffers;
+			{ default.soundFileView; }.defer(1);
+		};
+		ServerQuit add: { this.default.close };
+	}
+
+	*default {
+		^default ?? { default = this.new };
+	}
+
+	close { window !? { window.close; } }
 
 	audioFileDir {
 		^audioFileDir ?? { this.defaultAudioDir }
@@ -54,7 +66,7 @@ Tsr {
 
 	soundFileView {
 		var sfview, soundfile;
-		this.vlayoutRect(
+		window = this.vlayoutRect(
 			Rect(0, 0, 800, 400),
 			PopUpMenu()
 			.items_(audioBuffers.keys.asArray.sort)
@@ -70,6 +82,7 @@ Tsr {
 				soundfile = SoundFile();
 			)
 		);
+
 		{
 			var path;
 			path = audioBuffers[audioBuffers.keys.asArray.sort.first].path;
